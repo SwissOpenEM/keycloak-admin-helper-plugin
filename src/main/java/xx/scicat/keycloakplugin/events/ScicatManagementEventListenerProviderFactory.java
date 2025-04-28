@@ -20,7 +20,6 @@ package xx.scicat.keycloakplugin.events;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.authorization.AuthorizationProvider;
-import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.events.EventType;
@@ -33,8 +32,8 @@ import java.util.Set;
 /**
  * @author <a href="mailto:jessy.lenne@stadline.com">Jessy Lennee</a>
  */
-public class HTTPEventListenerProviderFactory implements EventListenerProviderFactory {
-    private static final Logger LOG = Logger.getLogger(HTTPEventListenerProviderFactory.class);
+public class ScicatManagementEventListenerProviderFactory implements EventListenerProviderFactory {
+    private static final Logger LOG = Logger.getLogger(ScicatManagementEventListenerProviderFactory.class);
 
     private Set<EventType> excludedEvents;
     private Set<OperationType> excludedAdminOperations;
@@ -50,7 +49,7 @@ public class HTTPEventListenerProviderFactory implements EventListenerProviderFa
          final AuthorizationProvider authorization=session.getProvider(AuthorizationProvider.class);
 //         final ResourceServer resourceServer=authorization.getStoreFactory().getPolicyStore().;
 
-        return new HTTPEventListenerProvider(excludedEvents, excludedAdminOperations, serverUri, username, password,session);
+        return new ScicatManagementEventListenerProvider(session);
     }
 
     @Override

@@ -16,4 +16,4 @@
 # limitations under the License.
 #
 
-xx.scicat.keycloakplugin.events.HTTPEventListenerProviderFactory
+xx.scicat.keycloakplugin.events.ScicatManagementEventListenerProviderFactory
