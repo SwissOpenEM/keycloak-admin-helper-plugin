@@ -101,33 +101,50 @@ public class MyResourceProvider implements RealmResourceProvider {
 
         return Response.ok(Map.of("hello", auth.getUser().getUsername())).build();
     }
+
     @GET
     @Path("creategroup")
     @Produces(MediaType.APPLICATION_JSON)
     public Response createGroup() {
-        AuthResult auth = checkAuth();
+        AuthResult auth = checkAuth2();
 
 //		session.users().
-        LOG.warn("Realm search");
-        session.realms().getRealmsStream().forEach(r -> {
-            LOG.warn("  RE " + r.getName() + " " + r.getDisplayName());
+        LOG.warn("CREATE GROUP");
+        String FACILITY_NAME = "facility_name";
+        String adminFacility = auth.getUser().getFirstAttribute(FACILITY_NAME);
+        RealmModel realm = session.getContext().getRealm();
+        if (adminFacility == null)
+            throw new ForbiddenException("Admin doesn't have a facility set");
 
-            session.users().searchForUserStream(r, Map.of()).forEach(u -> {
-                LOG.warn("    US " + u.getEmail() + " " + u.getId() + " " + u.getUsername() + " " + u.getFirstName() + " " + u.getLastName());
-            });
-            try {
-                String name = "dummyuser" + new Random().nextInt();
-                UserModel u = session.users().addUser(r, name);
-                u.setEmail(name + "@trash.net");
-                u.setEnabled(true);
-            } catch (Exception e) {
-                LOG.warn("cannot add user in realm " + r, e);
-            }
 
-        });
+        String name = adminFacility + "_newunnamedgroup_" + new Random().nextLong(100000000L);
+        GroupModel g = session.groups().createGroup(realm, name);
+        g.setAttribute(FACILITY_NAME, List.of(adminFacility));
+//        g
+//        u.setEmail(name + "@trash.net");
+//        u.setEnabled(true);
+//
+//        session.realms().getRealmsStream().forEach(r -> {
+//            LOG.warn("  RE " + r.getName() + " " + r.getDisplayName());
+//
+//            session.users().searchForUserStream(r, Map.of()).forEach(u -> {
+//                LOG.warn("    US " + u.getEmail() + " " + u.getId() + " " + u.getUsername() + " " + u.getFirstName() + " " + u.getLastName());
+//            });
+//            try {
+//                String name = "dummyuser" + new Random().nextInt();
+//                UserModel u = session.users().addUser(r, name);
+//                u.setEmail(name + "@trash.net");
+//                u.setEnabled(true);
+//            } catch (Exception e) {
+//                LOG.warn("cannot add user in realm " + r, e);
+//            }
+//
+//        });
 //		session.users().searchForUserStream()
 
-        return Response.ok(Map.of("hello", auth.getUser().getUsername())).build();
+        return Response.ok(Map.of(
+                "hello", auth.getUser().getUsername(),
+                "status", "Group " + name + " added")).build();
     }
 
     @GET
@@ -186,6 +203,19 @@ public class MyResourceProvider implements RealmResourceProvider {
             // other proposal:   if( auth.getToken().getIssuedFor() == null) {
         } else if (auth.getToken().getIssuedFor() == null || !auth.getToken().getIssuedFor().equals("admin-cli")) {
             LOG.warn("ForbiddenException(\"Token is not properly issued for admin-cli\")");
+            throw new ForbiddenException("Token is not properly issued for admin-cli");
+        }
+        return auth;
+    }
+
+    private AuthResult checkAuth2() {
+        AuthResult auth = new AppAuthManager.BearerTokenAuthenticator(session).authenticate();
+        if (auth == null) {
+            LOG.warn("NotAuthorizedException(\"Bearer\")");
+            throw new NotAuthorizedException("Bearer");
+            // other proposal:   if( auth.getToken().getIssuedFor() == null) {
+        } else if (auth.getToken().getIssuedFor() == null || !auth.getToken().getIssuedFor().equals("admin-cli")) {
+            LOG.warn("ForbiddenException(\"Token is not properly issued for admin-cli\")" + auth.getToken().getIssuedFor());
             throw new ForbiddenException("Token is not properly issued for admin-cli");
         }
         return auth;
