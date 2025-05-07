@@ -1,0 +1,45 @@
+/* module-key = 'com.atlassian.confluence.plugins.confluence-mentions-plugin:mentions-styling', location = 'css/mentions.css' */
+.wiki-content .user-mention {
+    display: inline-block;
+    background: var(--ds-surface, #f5f5f5);
+    padding: 0 2px;
+    border: 1px solid var(--ds-border, #ccc);
+    border-radius: 3px;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+.wiki-content .user-mention:before,
+.wiki-content .user-mention:hover:before,
+.wiki-content .user-mention:active:before,
+.wiki-content .user-mention:visited:before {
+    color: var(--ds-text, #999);
+    content: "@";
+    margin-right: 2px;
+    font-size: 12px;
+    vertical-align: top;
+    line-height: 16px;
+    text-decoration: none;
+    /* this is necessary for the text-decoration to be applied in Chrome/FF */
+    display: inline-block;
+}
+
+.wiki-content .current-user-mention {
+     background: var(--ds-background-selected, #3b7fc4);
+     color: var(--ds-text-selected, #f5f5f5);
+     border: 1px solid var(--ds-border-selected, #4a6785);
+}
+
+.wiki-content .current-user-mention:before,
+.wiki-content .current-user-mention:hover:before,
+.wiki-content .current-user-mention:active:before,
+.wiki-content .current-user-mention:visited:before {
+    color: var(--ds-text-subtle, #ddd);
+}
+
+.wiki-content .current-user-mention:link,
+.wiki-content .current-user-mention:hover,
+.wiki-content .current-user-mention:active,
+.wiki-content .current-user-mention:visited {
+    color: var(--ds-text-subtlest, #f5f5f5);
+}
