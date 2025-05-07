@@ -160,6 +160,10 @@ public class PolicyAdminAdapter {
         return policyStore.create(resourceServer, permissionRep);
     }
 
+    /**
+     * doesn't work
+     */
+    @Deprecated
     public boolean addToExistingPermission_doesntworktoo(String permissionName, GroupModel group, Set<String> scopes) throws IOException {
         // https://chatgpt.com/c/6811ef46-ac2c-8010-b103-24897f19dcf3
         Policy policy = getPermissionByName(permissionName);
@@ -178,6 +182,10 @@ public class PolicyAdminAdapter {
         return true;
     }
 
+    /**
+     * doesn't work
+     */
+    @Deprecated
     public boolean addToExistingPermission_doesntwork(String permissionName, GroupModel group, Set<String> scopes) {
         Policy permission = getPermissionByName(permissionName);
         if (permission == null) return false;
@@ -194,6 +202,10 @@ public class PolicyAdminAdapter {
         return true;
     }
 
+    /**
+     * doesn't work
+     */
+    @Deprecated
     public boolean addToExistingPermission_trial(String permissionName, GroupModel group, Set<String> scopes) {
         // https://gemini.google.com/app/3c3b0fcffcb768e7
 
@@ -225,6 +237,10 @@ public class PolicyAdminAdapter {
         return true;
     }
 
+    /**
+     * doesn't work
+     */
+    @Deprecated
     public boolean addToExistingPermission_trial2(String permissionName, GroupModel group, Set<String> scopes) {
         // https://gemini.google.com/app/3c3b0fcffcb768e7
 
