@@ -5,10 +5,12 @@ import org.keycloak.authorization.model.Policy;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserModel;
 import org.keycloak.representations.idm.authorization.DecisionStrategy;
 import org.keycloak.representations.idm.authorization.Logic;
 import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
+import xx.scicat.keycloakplugin.permissions.AdminAdapter;
 import xx.scicat.keycloakplugin.permissions.PolicyAdminAdapter;
 
 import java.util.Set;
@@ -22,8 +24,27 @@ public class NewGroupEventHandler {
         this.session = session;
     }
 
+    public void processNewInitializerGroupEvent(RealmModel realm, GroupModel group, String facilityName) {
+        LOG.warnv("New init facility group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
+
+        AdminAdapter admin = new AdminAdapter(realm, session);
+        PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
+
+        // avoid collision, create new group
+        GroupModel templateGroup = admin.getOrCreateGroup(realm, null, facilityName + "-template");
+        UserModel adminUser = admin.getOrCreateAdminUser(realm, facilityName + "-admin");
+
+        setAttributeForGroup(templateGroup, facilityName);
+
+        setPolicyForGroup(policyAdmin, templateGroup, facilityName);
+
+        admin.removeGroup(realm, group);
+    }
+
     public void processNewGroupEvent(RealmModel realm, GroupModel group, String facilityName, GroupModel topGroup) {
         LOG.warnv("New group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
+
+        PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
 
         String newName = findCollisionFreeGroupName(realm, group, facilityName);
         if (!group.getName().equals(newName)) {
@@ -33,7 +54,6 @@ public class NewGroupEventHandler {
         makeGroupParent(group);
         setAttributeForGroup(group, facilityName);
 
-        PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
         setPolicyForGroup(policyAdmin, group, facilityName);
 
 //        Policy policyToBeEdited = policyStore.findByName(resourceServer, oldPolicyName);
@@ -80,14 +100,16 @@ public class NewGroupEventHandler {
 
 
     private void createOrAddToGroupPermission(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName, Policy policy) {
-        final String name = facilityName + " admin for all " + facilityName + " groups";
+        final String name = facilityName + " admin for " + facilityName + ", group " + group.getName();
         final Set<String> scopes = Set.of("view-members", "manage-membership", "manage-members", "view", "manage");
 
         // problem: creating: no problem, updating: big api mess. ->!! with this code commented out, permission name must be unique
-//        if (policyAdmin.addToExistingPermission(name, group, scopes)) {
-//            LOG.warn("added to already-existing permission");
-//            return;
-//        }
+        // https://stackoverflow.com/questions/79598549/keycloak-plugin-add-group-to-existing-permission
+//        final String name = facilityName + " admin for all " + facilityName + " groups";
+//            if (policyAdmin.addToExistingPermission(name, group, scopes)) {
+//                LOG.warn("added to already-existing permission");
+//                return;
+//            }
 
         ScopePermissionRepresentation permissionRep = new ScopePermissionRepresentation();
         permissionRep.setResourceType("Groups");
@@ -106,11 +128,16 @@ public class NewGroupEventHandler {
         }
         String newName = newNameUnnumbered;
         for (int i = 1; ; i++) {
-            if (session.groups().getGroupByName(realm, null, newName) == null
-                    && session.groups().getGroupByName(realm, group.getParent(), newName) == null)
+            if (noCollision(realm, null, group, newName)
+                    && noCollision(realm, group.getParent(), group, newName))
                 break;
             newName = newNameUnnumbered + i;
         }
         return newName;
+    }
+
+    private boolean noCollision(RealmModel realm, GroupModel checkInParent, GroupModel groupToBeRenamed, String newName) {
+        GroupModel foundGroup = session.groups().getGroupByName(realm, checkInParent, newName);
+        return foundGroup == null || foundGroup == groupToBeRenamed;
     }
 }

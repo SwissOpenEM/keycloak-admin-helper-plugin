@@ -68,6 +68,22 @@ public class ScicatManagementEventListenerProvider implements EventListenerProvi
         final GroupModel group = requireNonNull(session.groups().getGroupById(realm, newGroupId));
 
         LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
+
+        NewGroupEventHandler handler = new NewGroupEventHandler(session);
+
+        if (group.getParent() == null && group.getName().endsWith("--initnewfacility")) {
+            String groupName = group.getName();
+            String facilityName = groupName.substring(0, groupName.length() - "--initnewfacility".length());
+            while (facilityName.endsWith("-")) facilityName = facilityName.substring(0, facilityName.length() - 1);
+            if (facilityName.isBlank())
+                throw new IllegalArgumentException("Facility name in group name " + groupName + " is empty");
+
+            LOG.warnv("Initializing a new facility with name {0}", facilityName);
+
+            handler.processNewInitializerGroupEvent(realm, group, facilityName);
+            return;
+        }
+
         if (group.getParent() == null) {
             LOG.warn("abort: already a top level group");
             return;
@@ -80,7 +96,6 @@ public class ScicatManagementEventListenerProvider implements EventListenerProvi
             return;
         }
 
-        NewGroupEventHandler handler = new NewGroupEventHandler(session);
         handler.processNewGroupEvent(realm, group, facilityName, topGroup);
     }
 
@@ -110,7 +125,7 @@ public class ScicatManagementEventListenerProvider implements EventListenerProvi
         return group.getFirstAttribute(FACILITY_NAME_ATTR);
     }
 
-    private GroupModel getTopGroup(GroupModel group) {
+    public static GroupModel getTopGroup(GroupModel group) {
         while (group.getParent() != null) {
             group = group.getParent();
         }

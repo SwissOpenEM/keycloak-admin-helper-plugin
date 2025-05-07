@@ -14,10 +14,11 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
-import xx.scicat.keycloakplugin.events.ScicatManagementEventListenerProvider;
+import org.keycloak.util.JsonSerialization;
 
-import java.text.MessageFormat;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class PolicyAdminAdapter {
     private final PolicyStore policyStore;
 
     public static PolicyAdminAdapter create(KeycloakSession session, RealmModel realm) {
-        final ClientModel clientModel = realm.getAdminPermissionsClient();
+        final ClientModel clientModel = requireNonNull(realm.getAdminPermissionsClient(), "AdminPermissionsClient is null. Forgot to enable 'Admin Permissions' in realm?");
         final AuthorizationProvider authz = requireNonNull(session.getProvider(AuthorizationProvider.class));
         final StoreFactory storeFactory = requireNonNull(authz.getStoreFactory());
         final ResourceServer resourceServer = requireNonNull(storeFactory.getResourceServerStore().findByClient(clientModel));
@@ -161,85 +162,41 @@ public class PolicyAdminAdapter {
         return policyStore.create(resourceServer, permissionRep);
     }
 
-    public boolean addToExistingPermission(String permissionName, GroupModel group, Set<String> scopes) {
+    public boolean addToExistingPermission_doesntworktoo(String permissionName, GroupModel group, Set<String> scopes) throws IOException {
+        // https://chatgpt.com/c/6811ef46-ac2c-8010-b103-24897f19dcf3
+        Policy policy = getPermissionByName(permissionName);
+        if (policy == null) return false;
+
+        Map<String, String> policyConfig = policy.getConfig();
+        policyConfig.forEach((s, s2) -> LOG.warn("  polconfig " + s + ": " + s2));
+        // cave: there's no "config" entry in this map!
+
+        ScopePermissionRepresentation permissionRep = JsonSerialization.readValue(
+                policyConfig.get("config"),
+                ScopePermissionRepresentation.class
+        );
+        permissionRep.addResource(group.getId());
+        policyConfig.put("config", JsonSerialization.writeValueAsString(permissionRep));
+        return true;
+    }
+
+    public boolean addToExistingPermission_doesntwork(String permissionName, GroupModel group, Set<String> scopes) {
         Policy permission = getPermissionByName(permissionName);
         if (permission == null) return false;
 
+        LOG.warn("permission: " + permission + " ; type=" + permission.getClass());
         permission.getResources().forEach(resource -> {
-          LOG.warnv("::{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", resource, resource.getId(), resource.getName(), resource.getDisplayName(), resource.getType(), resource.getIconUri(), resource.getOwner(), resource.getScopes().stream().map(r -> r.getName()).collect(Collectors.joining()));
+            LOG.warnv("::{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", resource, resource.getId(), resource.getName(), resource.getDisplayName(), resource.getType(), resource.getIconUri(), resource.getOwner(), resource.getScopes().stream().map(r -> r.getName()).collect(Collectors.joining()));
         });
+        // instead of ResourceWrapper, we probably should work with an existing Resource, fetched via a function I don't know
         permission.addResource(new ResourceWrapper(
                 group.getId(), group.getName(),
                 availableScopes.stream().filter(s -> scopes.contains(s.getName())).collect(Collectors.toSet()),
                 resourceServer));
-//        permission.addResource(new ResourceWrapper(
-//                group.getId(), group.getName(),
-//                availableScopes.stream().filter(s -> scopes.contains(s.getName())).collect(Collectors.toSet()),
-//                resourceServer));
         return true;
     }
 
     private Policy getPermissionByName(String permissionName) {
         return policyStore.findByName(resourceServer, permissionName);
-    }
-}
-
-class ScopeWrapper implements Scope {
-    private String id;
-    private String name;
-    private String displayName;
-    private String iconUri;
-    private ResourceServer resourceServer;
-
-
-    public ScopeWrapper(String scope) {
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    @Override
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    @Override
-    public String getIconUri() {
-        return iconUri;
-    }
-
-    @Override
-    public void setIconUri(String iconUri) {
-        this.iconUri = iconUri;
-    }
-
-    @Override
-    public ResourceServer getResourceServer() {
-        return resourceServer;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setResourceServer(ResourceServer resourceServer) {
-        this.resourceServer = resourceServer;
     }
 }

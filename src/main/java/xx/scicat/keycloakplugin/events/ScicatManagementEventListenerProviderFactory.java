@@ -46,7 +46,7 @@ public class ScicatManagementEventListenerProviderFactory implements EventListen
 //        session.authenticationSessions().
 
 
-         final AuthorizationProvider authorization=session.getProvider(AuthorizationProvider.class);
+        final AuthorizationProvider authorization = session.getProvider(AuthorizationProvider.class);
 //         final ResourceServer resourceServer=authorization.getStoreFactory().getPolicyStore().;
 
         return new ScicatManagementEventListenerProvider(session);
@@ -54,27 +54,43 @@ public class ScicatManagementEventListenerProviderFactory implements EventListen
 
     @Override
     public void init(Config.Scope config) {
-//        String[] excludes = config.getArray("exclude-events");
-//        if (excludes != null) {
-//            excludedEvents = new HashSet<>();
-//            for (String e : excludes) {
-//                excludedEvents.add(EventType.valueOf(e));
-//            }
-//        }
-//
-//        String[] excludesOperations = config.getArray("excludesOperations");
-//        if (excludesOperations != null) {
-//            excludedAdminOperations = new HashSet<>();
-//            for (String e : excludesOperations) {
-//                excludedAdminOperations.add(OperationType.valueOf(e));
-//            }
-//        }
-//
+        /*
+        The following config is only an example. Right now it's not clear where these values can be set in the UI, and if it's possible to add a descriptive text for the UI.
+
+        The values are not used right now
+         */
+        String DEFAULT_POL = """
+                {
+                  "type": "user",
+                  "name": "abc",
+                  "description": "",
+                  "decisionStrategy": "UNANIMOUS",
+                  "logic": "POSITIVE",
+                  "users": ["-ignored-"],
+                  ]
+                }""";
+        String DEFAULT_PERM = """
+                {
+                  "resources": ["-ignored-"],
+                  "policies": ["-ignored-"],
+                  "scopes": [
+                    "view-members",
+                    "manage-membership",
+                    "manage-members",
+                    "view",
+                    "manage"
+                  ],
+                  "name": "all on %FACILITY%",
+                  "description": "bla bla %FACILITY% bla",
+                  "resourceType": "Groups"
+                }""";
+        config.get("example-json-policy-template", DEFAULT_POL);
+        config.get("example-json-permission-template", DEFAULT_PERM);
+        config.getBoolean("example-next-time-bootstrap-realm", false);
+
 //        serverUri = config.get("serverUri", "http://nginx/frontend_dev.php/webhook/keycloak");
 //        username = config.get("username", null);
 //        password = config.get("password", null);
-//
-//        System.out.println("Forwarding keycloak events to: " + serverUri);
         LOG.warn("Event listener installed");
     }
 
