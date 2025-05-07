@@ -2,11 +2,9 @@ package xx.scicat.keycloakplugin.permissions;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authorization.AuthorizationProvider;
-import org.keycloak.authorization.model.Policy;
-import org.keycloak.authorization.model.ResourceServer;
-import org.keycloak.authorization.model.ResourceWrapper;
-import org.keycloak.authorization.model.Scope;
+import org.keycloak.authorization.model.*;
 import org.keycloak.authorization.store.PolicyStore;
+import org.keycloak.authorization.store.ResourceStore;
 import org.keycloak.authorization.store.StoreFactory;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.GroupModel;
@@ -193,6 +191,59 @@ public class PolicyAdminAdapter {
                 group.getId(), group.getName(),
                 availableScopes.stream().filter(s -> scopes.contains(s.getName())).collect(Collectors.toSet()),
                 resourceServer));
+        return true;
+    }
+
+    public boolean addToExistingPermission_trial(String permissionName, GroupModel group, Set<String> scopes) {
+        // https://gemini.google.com/app/3c3b0fcffcb768e7
+
+        Policy permission = getPermissionByName(permissionName);
+        if (permission == null) return false;
+
+        Set<String> resourceIds = permission.getResources().stream()
+                .map(org.keycloak.authorization.model.Resource::getId)
+                .collect(Collectors.toSet());
+
+        // Add the new group ID to the set of resource IDs
+        resourceIds.add(group.getId());
+
+        // Create a new ScopePermissionRepresentation for the update
+        ScopePermissionRepresentation updatedPermissionRep = new ScopePermissionRepresentation();
+        updatedPermissionRep.setName(permission.getName());
+        updatedPermissionRep.setDescription(permission.getDescription());
+        updatedPermissionRep.setPolicies(permission.getAssociatedPolicies().stream().map(Policy::getId).collect(Collectors.toSet()));
+        updatedPermissionRep.setScopes(permission.getScopes().stream().map(org.keycloak.authorization.model.Scope::getName).collect(Collectors.toSet()));
+        updatedPermissionRep.setResourceType("Groups"); // Important: Set the correct resource type
+        updatedPermissionRep.setResources(resourceIds); // Set the updated set of resource IDs
+
+        // Update the permission in the policy store
+        // TODO genini cited policyStore.update, but the method doesn't exist
+//        policyStore.update(resourceServer, permission.getId(), updatedPermissionRep);
+
+        System.out.println("Successfully added group '" + group.getName() + "' to permission '" + permissionName + "'.");
+
+        return true;
+    }
+
+    public boolean addToExistingPermission_trial2(String permissionName, GroupModel group, Set<String> scopes) {
+        // https://gemini.google.com/app/3c3b0fcffcb768e7
+
+        Policy permission = getPermissionByName(permissionName);
+        if (permission == null) return false;
+
+        LOG.warn("permission: " + permission + " ; type=" + permission.getClass());
+        permission.getResources().forEach(resource -> {
+            LOG.warnv("::{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", resource, resource.getId(), resource.getName(), resource.getDisplayName(), resource.getType(), resource.getIconUri(), resource.getOwner(), resource.getScopes().stream().map(r -> r.getName()).collect(Collectors.joining()));
+        });
+        // instead of ResourceWrapper, we probably should work with an existing Resource, fetched via a function I don't know
+
+        final StoreFactory storeFactory = requireNonNull(authorization.getStoreFactory());
+        final ResourceStore resourceStore = storeFactory.getResourceStore();
+        // the following command throws NPE. groupid cannot be found. group != resourceid!!!
+        Resource groupResource = requireNonNull(resourceStore.findById(resourceServer, group.getId()));
+
+        permission.addResource(groupResource);
+
         return true;
     }
 

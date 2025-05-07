@@ -106,7 +106,7 @@ public class NewGroupEventHandler {
         // problem: creating: no problem, updating: big api mess. ->!! with this code commented out, permission name must be unique
         // https://stackoverflow.com/questions/79598549/keycloak-plugin-add-group-to-existing-permission
 //        final String name = facilityName + " admin for all " + facilityName + " groups";
-//            if (policyAdmin.addToExistingPermission(name, group, scopes)) {
+//            if (policyAdmin.addToExistingPermission_trial2(name, group, scopes)) {
 //                LOG.warn("added to already-existing permission");
 //                return;
 //            }
