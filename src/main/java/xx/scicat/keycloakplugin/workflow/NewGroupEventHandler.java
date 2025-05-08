@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.events;
+package xx.scicat.keycloakplugin.workflow;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authorization.model.Policy;
@@ -16,12 +16,22 @@ import xx.scicat.keycloakplugin.permissions.PolicyAdminAdapter;
 import java.util.Set;
 
 public class NewGroupEventHandler {
-    private final KeycloakSession session;
-    private static final Logger LOG = Logger.getLogger(NewGroupEventHandler.class);
     public static final String FACILITY_NAME_ATTR = "facility-name";
+    private static final Logger LOG = Logger.getLogger(NewGroupEventHandler.class);
+    private final KeycloakSession session;
 
     public NewGroupEventHandler(KeycloakSession session) {
         this.session = session;
+    }
+
+    private static void setAttributeForGroup(GroupModel group, String facilityName) {
+        LOG.warnv("  * set {0} attribute to {1}", FACILITY_NAME_ATTR, facilityName);
+        group.setSingleAttribute(FACILITY_NAME_ATTR, facilityName);
+    }
+
+    private static void makeGroupParent(GroupModel group) {
+        LOG.warnv("  * make group top-level");
+        group.setParent(null);
     }
 
     public void processNewInitializerGroupEvent(RealmModel realm, GroupModel group, String facilityName) {
@@ -68,16 +78,6 @@ public class NewGroupEventHandler {
 //        AdminEventBuilder adminEvent = new AdminEventBuilder(realm, adminAuth, session, session.getContext().getConnection());
 //        session.getTransactionManager().commit();
 //        adminEvent.operation(OperationType.UPDATE).resourcePath(authz.getKeycloakSession().getContext().getUri()).representation(representation).success();
-    }
-
-    private static void setAttributeForGroup(GroupModel group, String facilityName) {
-        LOG.warnv("  * set {0} attribute to {1}", FACILITY_NAME_ATTR, facilityName);
-        group.setSingleAttribute(FACILITY_NAME_ATTR, facilityName);
-    }
-
-    private static void makeGroupParent(GroupModel group) {
-        LOG.warnv("  * make group top-level");
-        group.setParent(null);
     }
 
     private void setPolicyForGroup(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName) {
