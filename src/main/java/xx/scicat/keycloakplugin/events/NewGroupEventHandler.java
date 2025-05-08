@@ -46,12 +46,12 @@ public class NewGroupEventHandler {
 
         PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
 
-        String newName = findCollisionFreeGroupName(realm, group, facilityName);
-        if (!group.getName().equals(newName)) {
-            LOG.warnv("  * rename group to {0}", newName);
-            group.setName(newName);
-        }
-        makeGroupParent(group);
+//        String newName = findCollisionFreeGroupName(realm, group, facilityName);
+//        if (!group.getName().equals(newName)) {
+//            LOG.warnv("  * rename group to {0}", newName);
+//            group.setName(newName);
+//        }
+//        makeGroupParent(group);
         setAttributeForGroup(group, facilityName);
 
         setPolicyForGroup(policyAdmin, group, facilityName);
