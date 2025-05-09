@@ -40,15 +40,19 @@ public class NewGroupEventHandler {
         AdminAdapter admin = new AdminAdapter(realm, session);
         PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
 
-        // avoid collision, create new group
-        GroupModel templateGroup = admin.getOrCreateGroup(realm, null, facilityName + "-template");
+        // collision detection is indirectly implemented in kaycloak itself
+        GroupModel existingGroup = session.groups().getGroupByName(realm, null, facilityName);
+        if (existingGroup != null) {
+            LOG.warnv("Group with name " + facilityName + " already exists. Doing nothing.");
+            return;
+        }
+        group.setName(facilityName);
+
         UserModel adminUser = admin.getOrCreateAdminUser(realm, facilityName + "-admin");
 
-        setAttributeForGroup(templateGroup, facilityName);
+        setAttributeForGroup(group, facilityName);
 
-        setPolicyForGroup(policyAdmin, templateGroup, facilityName);
-
-        admin.removeGroup(realm, group);
+        setPermissionAndPolicyForGroup(policyAdmin, group, facilityName);
     }
 
     public void processNewGroupEvent(RealmModel realm, GroupModel group, String facilityName, GroupModel topGroup) {
@@ -64,7 +68,7 @@ public class NewGroupEventHandler {
 //        makeGroupParent(group);
         setAttributeForGroup(group, facilityName);
 
-        setPolicyForGroup(policyAdmin, group, facilityName);
+        setPermissionAndPolicyForGroup(policyAdmin, group, facilityName);
 
 //        Policy policyToBeEdited = policyStore.findByName(resourceServer, oldPolicyName);
 //        AbstractPolicyRepresentation representation = ModelToRepresentation.toRepresentation(policyToBeEdited, authz);
@@ -80,7 +84,7 @@ public class NewGroupEventHandler {
 //        adminEvent.operation(OperationType.UPDATE).resourcePath(authz.getKeycloakSession().getContext().getUri()).representation(representation).success();
     }
 
-    private void setPolicyForGroup(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName) {
+    private void setPermissionAndPolicyForGroup(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName) {
         // set Fine Grained Admin Permissions (https://github.com/keycloak/keycloak/discussions/37133)
         Policy policy = createOrGetPolicy(policyAdmin, facilityName);
         createOrAddToGroupPermission(policyAdmin, group, facilityName, policy);
@@ -100,7 +104,7 @@ public class NewGroupEventHandler {
 
 
     private void createOrAddToGroupPermission(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName, Policy policy) {
-        final String name = facilityName + " admin for " + facilityName + ", group " + group.getName();
+        final String name = facilityName + " admin for " + facilityName + ", group " + groupPath(group);
         final Set<String> scopes = Set.of("view-members", "manage-membership", "manage-members", "view", "manage");
 
         // problem: creating: no problem, updating: big api mess. ->!! with this code commented out, permission name must be unique
@@ -119,6 +123,15 @@ public class NewGroupEventHandler {
         permissionRep.setName(name);
         permissionRep.setDescription("Allow " + facilityName + " admins to change group members and settings of " + facilityName + " groups");
         policyAdmin.createPermission(permissionRep);
+    }
+
+    private String groupPath(GroupModel group) {
+        StringBuilder result = new StringBuilder(group.getName());
+        while (group.getParent() != null) {
+            group = group.getParent();
+            result.insert(0, group.getName() + "/");
+        }
+        return result.toString();
     }
 
     private String findCollisionFreeGroupName(RealmModel realm, GroupModel group, String facilityName) {

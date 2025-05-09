@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 import static xx.scicat.keycloakplugin.workflow.NewGroupEventHandler.FACILITY_NAME_ATTR;
 
 /**
- * @author <a href="mailto:jessy.lenne@stadline.com">Jessy Lenne</a>
+ * Listens on create-group events of subgroups
  */
 public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEventProvider {
 
@@ -55,7 +55,7 @@ public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEve
     private void handleNewGroupEvent(AdminEvent event) {
         dumpEvent(event);
 
-        final RealmModel realm = session.realms().getRealm(event.getRealmId());
+        final RealmModel realm = requireNonNull(session.realms().getRealm(event.getRealmId()));
         final String newGroupId = requireNonNull(getGroupIdFromEvent(event));
         final GroupModel group = requireNonNull(session.groups().getGroupById(realm, newGroupId));
 

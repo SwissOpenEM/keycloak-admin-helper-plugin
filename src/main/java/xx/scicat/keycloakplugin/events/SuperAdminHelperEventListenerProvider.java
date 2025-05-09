@@ -29,9 +29,11 @@ import xx.scicat.keycloakplugin.workflow.NewGroupEventHandler;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author <a href="mailto:jessy.lenne@stadline.com">Jessy Lenne</a>
+ * Listens on create-group events with name suffix "--initnewfacility"
  */
 public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventProvider {
+
+    public static final String GROUPNAME_INIT_SUFFIX = "--initnewfacility";
 
     protected SuperAdminHelperEventListenerProvider(KeycloakSession session) {
         super(session);
@@ -54,17 +56,17 @@ public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventPro
     private void handleNewGroupEvent(AdminEvent event) {
         dumpEvent(event);
 
-        final RealmModel realm = session.realms().getRealm(event.getRealmId());
+        final RealmModel realm = requireNonNull(session.realms().getRealm(event.getRealmId()));
         final String newGroupId = requireNonNull(getGroupIdFromEvent(event));
         final GroupModel group = requireNonNull(session.groups().getGroupById(realm, newGroupId));
 
-        if (group.getParent() == null && group.getName().endsWith("--initnewfacility")) {
+        String groupName = group.getName();
+        if (group.getParent() == null && groupName.endsWith(GROUPNAME_INIT_SUFFIX)) {
             LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
             NewGroupEventHandler handler = new NewGroupEventHandler(session);
 
-            String groupName = group.getName();
-            String facilityName = groupName.substring(0, groupName.length() - "--initnewfacility".length());
+            String facilityName = groupName.substring(0, groupName.length() - GROUPNAME_INIT_SUFFIX.length());
             while (facilityName.endsWith("-")) facilityName = facilityName.substring(0, facilityName.length() - 1);
             if (facilityName.isBlank())
                 throw new IllegalArgumentException("Facility name in group name " + groupName + " is empty");
