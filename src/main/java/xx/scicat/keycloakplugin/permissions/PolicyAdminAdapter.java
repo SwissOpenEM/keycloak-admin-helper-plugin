@@ -38,6 +38,13 @@ public class PolicyAdminAdapter {
     private final AuthorizationProvider authorization;
     private final PolicyStore policyStore;
 
+    public PolicyAdminAdapter(ResourceServer resourceServer, List<Scope> availableScopes, AuthorizationProvider authorization) {
+        this.resourceServer = resourceServer;
+        this.availableScopes = availableScopes;
+        this.authorization = authorization;
+        this.policyStore = authorization.getStoreFactory().getPolicyStore();
+    }
+
     public static PolicyAdminAdapter create(KeycloakSession session, RealmModel realm) {
         final ClientModel clientModel = requireNonNull(realm.getAdminPermissionsClient(), "AdminPermissionsClient is null. Forgot to enable 'Admin Permissions' in realm?");
         final AuthorizationProvider authz = requireNonNull(session.getProvider(AuthorizationProvider.class));
@@ -45,13 +52,6 @@ public class PolicyAdminAdapter {
         final ResourceServer resourceServer = requireNonNull(storeFactory.getResourceServerStore().findByClient(clientModel));
         final List<Scope> availableScopes = storeFactory.getScopeStore().findByResourceServer(resourceServer);
         return new PolicyAdminAdapter(resourceServer, availableScopes, authz);
-    }
-
-    public PolicyAdminAdapter(ResourceServer resourceServer, List<Scope> availableScopes, AuthorizationProvider authorization) {
-        this.resourceServer = resourceServer;
-        this.availableScopes = availableScopes;
-        this.authorization = authorization;
-        this.policyStore = authorization.getStoreFactory().getPolicyStore();
     }
 
     //    @POST
