@@ -54,26 +54,6 @@ public class PolicyAdminAdapter {
         return new PolicyAdminAdapter(resourceServer, availableScopes, authz);
     }
 
-    //    @POST
-    //    @Consumes(MediaType.APPLICATION_JSON)
-    //    @Produces(MediaType.APPLICATION_JSON)
-    //    @NoCache
-    //    @APIResponse(responseCode = "201", description = "Created")
-    //    public Response create(String payload) {
-    //        if (auth != null) {
-    //            this.auth.realm().requireManageAuthorization(resourceServer);
-    //        }
-    //
-    //        AbstractPolicyRepresentation representation = doCreateRepresentation(payload);
-    //        Policy policy = create(representation);
-    //
-    //        representation.setId(policy.getId());
-    //
-    //        audit(representation, representation.getId(), OperationType.CREATE, authorization.getKeycloakSession());
-    //
-    //        return Response.status(Response.Status.CREATED).entity(representation).build();
-    //    }
-
     /**
      * <h2>create policy:</h2>
      * <pre>
@@ -102,8 +82,6 @@ public class PolicyAdminAdapter {
      *   ]
      * }
      * </pre>
-     *
-     * @return
      */
     public Policy createPolicy(UserPolicyRepresentation policyRep) {
 //        authorization.policies().user().create(policyRep);
@@ -153,8 +131,6 @@ public class PolicyAdminAdapter {
      *   "resourceType": "Groups"
      * }
      * </pre>
-     *
-     * @return
      */
     public Policy createPermission(ScopePermissionRepresentation permissionRep) {
         return policyStore.create(resourceServer, permissionRep);
