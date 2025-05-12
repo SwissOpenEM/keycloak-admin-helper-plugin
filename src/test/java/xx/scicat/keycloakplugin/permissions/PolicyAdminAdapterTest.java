@@ -17,7 +17,7 @@ import java.util.Set;
  * * https://keycloak.discourse.group/t/how-do-i-create-policies-via-api/15781/4
  */
 public class PolicyAdminAdapterTest {
-    PolicyAdminAdapter underTest = new PolicyAdminAdapter(null, null, null);
+    final PolicyAdminAdapter underTest = new PolicyAdminAdapter(null, null);
 
     //    @POST
     //    @Consumes(MediaType.APPLICATION_JSON)

@@ -2,21 +2,21 @@ package xx.scicat.keycloakplugin.permissions;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authorization.AuthorizationProvider;
-import org.keycloak.authorization.model.*;
+import org.keycloak.authorization.model.Policy;
+import org.keycloak.authorization.model.Resource;
+import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.store.PolicyStore;
-import org.keycloak.authorization.store.ResourceStore;
 import org.keycloak.authorization.store.StoreFactory;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.utils.ModelToRepresentation;
+import org.keycloak.models.utils.RepresentationToModel;
+import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
-import org.keycloak.util.JsonSerialization;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,13 +34,11 @@ public class PolicyAdminAdapter {
     private static final Logger LOG = Logger.getLogger(PolicyAdminAdapter.class);
 
     private final ResourceServer resourceServer;
-    private final List<Scope> availableScopes;
     private final AuthorizationProvider authorization;
     private final PolicyStore policyStore;
 
-    public PolicyAdminAdapter(ResourceServer resourceServer, List<Scope> availableScopes, AuthorizationProvider authorization) {
+    public PolicyAdminAdapter(ResourceServer resourceServer, AuthorizationProvider authorization) {
         this.resourceServer = resourceServer;
-        this.availableScopes = availableScopes;
         this.authorization = authorization;
         this.policyStore = authorization.getStoreFactory().getPolicyStore();
     }
@@ -50,8 +48,7 @@ public class PolicyAdminAdapter {
         final AuthorizationProvider authz = requireNonNull(session.getProvider(AuthorizationProvider.class));
         final StoreFactory storeFactory = requireNonNull(authz.getStoreFactory());
         final ResourceServer resourceServer = requireNonNull(storeFactory.getResourceServerStore().findByClient(clientModel));
-        final List<Scope> availableScopes = storeFactory.getScopeStore().findByResourceServer(resourceServer);
-        return new PolicyAdminAdapter(resourceServer, availableScopes, authz);
+        return new PolicyAdminAdapter(resourceServer, authz);
     }
 
     /**
@@ -84,8 +81,6 @@ public class PolicyAdminAdapter {
      * </pre>
      */
     public Policy createPolicy(UserPolicyRepresentation policyRep) {
-//        authorization.policies().user().create(policyRep);
-
         PolicyStore policyStore = authorization.getStoreFactory().getPolicyStore();
         Policy existing = policyStore.findByName(resourceServer, policyRep.getName());
         if (existing != null) return existing;
@@ -137,109 +132,30 @@ public class PolicyAdminAdapter {
     }
 
     /**
-     * doesn't work
+     * source: from a question, not an answer in https://github.com/keycloak/keycloak/discussions/26869
      */
-    @Deprecated
-    public boolean addToExistingPermission_doesntworktoo(String permissionName, GroupModel group, Set<String> scopes) throws IOException {
-        // https://chatgpt.com/c/6811ef46-ac2c-8010-b103-24897f19dcf3
-        Policy policy = getPermissionByName(permissionName);
-        if (policy == null) return false;
+    public boolean addGroupToExistingPermission(String permissionName, GroupModel group, Set<String> scopes) {
+        Policy permissionToBeEdited = policyStore.findByName(resourceServer, permissionName);
+        if (permissionToBeEdited == null) return false;
 
-        Map<String, String> policyConfig = policy.getConfig();
-        policyConfig.forEach((s, s2) -> LOG.warn("  polconfig " + s + ": " + s2));
-        // cave: there's no "config" entry in this map!
+        PolicyRepresentation representation = ModelToRepresentation.toRepresentation(permissionToBeEdited, authorization);
+        /*
+        please note: most fields are null. If you want to change a complex type, you probably need to pre-populate it.
+        only non-null fields in representation will overwrite the existing permission
+         */
+        representation.setResources(permissionToBeEdited.getResources().stream().map(Resource::getId).collect(Collectors.toSet()));
+        LOG.warn("num res before: " + representation.getResources().size());
+        representation.addResource(group.getId());
+        LOG.warn("num res after: " + representation.getResources().size());
+        // representation.setId(permissionToBeEdited.getId());
+        RepresentationToModel.toModel(representation, authorization, permissionToBeEdited);
 
-        ScopePermissionRepresentation permissionRep = JsonSerialization.readValue(
-                policyConfig.get("config"),
-                ScopePermissionRepresentation.class
-        );
-        permissionRep.addResource(group.getId());
-        policyConfig.put("config", JsonSerialization.writeValueAsString(permissionRep));
-        return true;
-    }
-
-    /**
-     * doesn't work
-     */
-    @Deprecated
-    public boolean addToExistingPermission_doesntwork(String permissionName, GroupModel group, Set<String> scopes) {
-        Policy permission = getPermissionByName(permissionName);
-        if (permission == null) return false;
-
-        LOG.warn("permission: " + permission + " ; type=" + permission.getClass());
-        permission.getResources().forEach(resource -> {
-            LOG.warnv("::{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", resource, resource.getId(), resource.getName(), resource.getDisplayName(), resource.getType(), resource.getIconUri(), resource.getOwner(), resource.getScopes().stream().map(r -> r.getName()).collect(Collectors.joining()));
-        });
-        // instead of ResourceWrapper, we probably should work with an existing Resource, fetched via a function I don't know
-        permission.addResource(new ResourceWrapper(
-                group.getId(), group.getName(),
-                availableScopes.stream().filter(s -> scopes.contains(s.getName())).collect(Collectors.toSet()),
-                resourceServer));
-        return true;
-    }
-
-    /**
-     * doesn't work
-     */
-    @Deprecated
-    public boolean addToExistingPermission_trial(String permissionName, GroupModel group, Set<String> scopes) {
-        // https://gemini.google.com/app/3c3b0fcffcb768e7
-
-        Policy permission = getPermissionByName(permissionName);
-        if (permission == null) return false;
-
-        Set<String> resourceIds = permission.getResources().stream()
-                .map(org.keycloak.authorization.model.Resource::getId)
-                .collect(Collectors.toSet());
-
-        // Add the new group ID to the set of resource IDs
-        resourceIds.add(group.getId());
-
-        // Create a new ScopePermissionRepresentation for the update
-        ScopePermissionRepresentation updatedPermissionRep = new ScopePermissionRepresentation();
-        updatedPermissionRep.setName(permission.getName());
-        updatedPermissionRep.setDescription(permission.getDescription());
-        updatedPermissionRep.setPolicies(permission.getAssociatedPolicies().stream().map(Policy::getId).collect(Collectors.toSet()));
-        updatedPermissionRep.setScopes(permission.getScopes().stream().map(org.keycloak.authorization.model.Scope::getName).collect(Collectors.toSet()));
-        updatedPermissionRep.setResourceType("Groups"); // Important: Set the correct resource type
-        updatedPermissionRep.setResources(resourceIds); // Set the updated set of resource IDs
-
-        // Update the permission in the policy store
-        // TODO gemini cited policyStore.update, but the method doesn't exist
-//        policyStore.update(resourceServer, permission.getId(), updatedPermissionRep);
-
-        System.out.println("Successfully added group '" + group.getName() + "' to permission '" + permissionName + "'.");
+        // try enabling some of the following lines if you have problems:
+        // AdminAuth adminAuth = new AdminAuth(realm, auth.getToken(), auth.getUser(), auth.getClient());
+        // AdminEventBuilder adminEvent = new AdminEventBuilder(realm, adminAuth, session, session.getContext().getConnection());
+        // session.getTransactionManager().commit();
+        // adminEvent.operation(OperationType.UPDATE).resourcePath(authz.getKeycloakSession().getContext().getUri()).representation(representation).success();
 
         return true;
-    }
-
-    /**
-     * doesn't work
-     */
-    @Deprecated
-    public boolean addToExistingPermission_trial2(String permissionName, GroupModel group, Set<String> scopes) {
-        // https://gemini.google.com/app/3c3b0fcffcb768e7
-
-        Policy permission = getPermissionByName(permissionName);
-        if (permission == null) return false;
-
-        LOG.warn("permission: " + permission + " ; type=" + permission.getClass());
-        permission.getResources().forEach(resource -> {
-            LOG.warnv("::{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", resource, resource.getId(), resource.getName(), resource.getDisplayName(), resource.getType(), resource.getIconUri(), resource.getOwner(), resource.getScopes().stream().map(r -> r.getName()).collect(Collectors.joining()));
-        });
-        // instead of ResourceWrapper, we probably should work with an existing Resource, fetched via a function I don't know
-
-        final StoreFactory storeFactory = requireNonNull(authorization.getStoreFactory());
-        final ResourceStore resourceStore = storeFactory.getResourceStore();
-        // the following command throws NPE. groupid cannot be found. group != resourceid!!!
-        Resource groupResource = requireNonNull(resourceStore.findById(resourceServer, group.getId()));
-
-        permission.addResource(groupResource);
-
-        return true;
-    }
-
-    private Policy getPermissionByName(String permissionName) {
-        return policyStore.findByName(resourceServer, permissionName);
     }
 }

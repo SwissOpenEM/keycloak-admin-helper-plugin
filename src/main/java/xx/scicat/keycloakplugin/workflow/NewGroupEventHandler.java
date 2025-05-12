@@ -29,11 +29,6 @@ public class NewGroupEventHandler {
         group.setSingleAttribute(FACILITY_NAME_ATTR, facilityName);
     }
 
-    private static void makeGroupParent(GroupModel group) {
-        LOG.warnv("  * make group top-level");
-        group.setParent(null);
-    }
-
     public void processNewInitializerGroupEvent(RealmModel realm, GroupModel group, String facilityName) {
         LOG.warnv("New init facility group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
 
@@ -58,30 +53,12 @@ public class NewGroupEventHandler {
     public void processNewGroupEvent(RealmModel realm, GroupModel group, String facilityName, GroupModel topGroup) {
         LOG.warnv("New group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
 
+        // early init => early abort if objects cannot be found
         PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
 
-//        String newName = findCollisionFreeGroupName(realm, group, facilityName);
-//        if (!group.getName().equals(newName)) {
-//            LOG.warnv("  * rename group to {0}", newName);
-//            group.setName(newName);
-//        }
-//        makeGroupParent(group);
         setAttributeForGroup(group, facilityName);
 
         setPermissionAndPolicyForGroup(policyAdmin, group, facilityName);
-
-//        Policy policyToBeEdited = policyStore.findByName(resourceServer, oldPolicyName);
-//        AbstractPolicyRepresentation representation = ModelToRepresentation.toRepresentation(policyToBeEdited, authz);
-//        representation.setName(newPolicyName);
-//        representation.setId(policyToBeEdited.getId());
-//
-//        RepresentationToModel.toModel(representation, authz, policyToBeEdited);
-//
-//
-//        AdminAuth adminAuth = new AdminAuth(realm, auth.getToken(), auth.getUser(), auth.getClient());
-//        AdminEventBuilder adminEvent = new AdminEventBuilder(realm, adminAuth, session, session.getContext().getConnection());
-//        session.getTransactionManager().commit();
-//        adminEvent.operation(OperationType.UPDATE).resourcePath(authz.getKeycloakSession().getContext().getUri()).representation(representation).success();
     }
 
     private void setPermissionAndPolicyForGroup(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName) {
@@ -104,16 +81,13 @@ public class NewGroupEventHandler {
 
 
     private void createOrAddToGroupPermission(PolicyAdminAdapter policyAdmin, GroupModel group, String facilityName, Policy policy) {
-        final String name = facilityName + " admin for " + facilityName + ", group " + groupPath(group);
+        final String name = facilityName + " admin for all " + facilityName + " groups";
         final Set<String> scopes = Set.of("view-members", "manage-membership", "manage-members", "view", "manage");
 
-        // problem: creating: no problem, updating: big api mess. ->!! with this code commented out, permission name must be unique
-        // https://stackoverflow.com/questions/79598549/keycloak-plugin-add-group-to-existing-permission
-//        final String name = facilityName + " admin for all " + facilityName + " groups";
-//            if (policyAdmin.addToExistingPermission_trial2(name, group, scopes)) {
-//                LOG.warn("added to already-existing permission");
-//                return;
-//            }
+        if (policyAdmin.addGroupToExistingPermission(name, group, scopes)) {
+            LOG.warn("added to already-existing permission");
+            return;
+        }
 
         ScopePermissionRepresentation permissionRep = new ScopePermissionRepresentation();
         permissionRep.setResourceType("Groups");
@@ -123,34 +97,5 @@ public class NewGroupEventHandler {
         permissionRep.setName(name);
         permissionRep.setDescription("Allow " + facilityName + " admins to change group members and settings of " + facilityName + " groups");
         policyAdmin.createPermission(permissionRep);
-    }
-
-    private String groupPath(GroupModel group) {
-        StringBuilder result = new StringBuilder(group.getName());
-        while (group.getParent() != null) {
-            group = group.getParent();
-            result.insert(0, group.getName() + "/");
-        }
-        return result.toString();
-    }
-
-    private String findCollisionFreeGroupName(RealmModel realm, GroupModel group, String facilityName) {
-        String newNameUnnumbered = group.getName();
-        if (!newNameUnnumbered.startsWith(facilityName + "-")) {
-            newNameUnnumbered = facilityName + "-" + newNameUnnumbered;
-        }
-        String newName = newNameUnnumbered;
-        for (int i = 1; ; i++) {
-            if (noCollision(realm, null, group, newName)
-                    && noCollision(realm, group.getParent(), group, newName))
-                break;
-            newName = newNameUnnumbered + i;
-        }
-        return newName;
-    }
-
-    private boolean noCollision(RealmModel realm, GroupModel checkInParent, GroupModel groupToBeRenamed, String newName) {
-        GroupModel foundGroup = session.groups().getGroupByName(realm, checkInParent, newName);
-        return foundGroup == null || foundGroup == groupToBeRenamed;
     }
 }
