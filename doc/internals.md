@@ -41,21 +41,21 @@ The workflow, in details:
 * set permission and policy for group
   * policy details. The policy will only be created if it doesn't yet exist with this name:
 
-    | Attribute         | Value                                                                        |
-    |-------------------|------------------------------------------------------------------------------|
-    | Name:             | "allow " + facilityName + " admin users policy"                              |
-    | Description:      | facilityName + " groups administration for " + facilityName + " admin users" |
-    | DecisionStrategy: | DecisionStrategy.UNANIMOUS                                                   |
-    | Logic:            | Logic.POSITIVE                                                               |
-    | User:             | FacilityName + "-admin"                                                      |
+    | Attribute         | Value                                                                 |
+    |-------------------|-----------------------------------------------------------------------|
+    | Name:             | "allow {facilityName} admin users policy"                             |
+    | Description:      | "{facilityName} groups administration for {facilityName} admin users" |
+    | DecisionStrategy: | DecisionStrategy.UNANIMOUS                                            |
+    | Logic:            | Logic.POSITIVE                                                        |
+    | User:             | "{FacilityName}-admin"                                                |
 
   * permission details. The permission will only be created if it doesn't yet exist with this name. Otherwise, the group is added to the existing permission:
 
-    | Attribute     | Value                                                                                                   |
-    |---------------|---------------------------------------------------------------------------------------------------------|
-    | Name:         | facilityName + " admin for all " + facilityName + " groups"                                             |
-    | Description:  | "Allow " + facilityName + " admins to change group members and settings of " + facilityName + " groups" |
-    | ResourceType: | Groups                                                                                                  |
-    | Resources:    | list of groups                                                                                          |
-    | Policy:       | link to policy, see above                                                                               |
-    | Scopes:       | "view-members", "manage-membership", "manage-members", "view", "manage"                                 |
+    | Attribute     | Value                                                                                       |
+    |---------------|---------------------------------------------------------------------------------------------|
+    | Name:         | "{facilityName} admin for all {facilityName} groups"                                        |
+    | Description:  | "Allow {facilityName} admins to change group members and settings of {facilityName} groups" |
+    | ResourceType: | Groups                                                                                      |
+    | Resources:    | list of groups                                                                              |
+    | Policy:       | link to policy, see above                                                                   |
+    | Scopes:       | "view-members", "manage-membership", "manage-members", "view", "manage"                     |
