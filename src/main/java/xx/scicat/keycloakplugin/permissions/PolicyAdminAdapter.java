@@ -229,7 +229,7 @@ public class PolicyAdminAdapter {
         updatedPermissionRep.setResources(resourceIds); // Set the updated set of resource IDs
 
         // Update the permission in the policy store
-        // TODO genini cited policyStore.update, but the method doesn't exist
+        // TODO gemini cited policyStore.update, but the method doesn't exist
 //        policyStore.update(resourceServer, permission.getId(), updatedPermissionRep);
 
         System.out.println("Successfully added group '" + group.getName() + "' to permission '" + permissionName + "'.");
