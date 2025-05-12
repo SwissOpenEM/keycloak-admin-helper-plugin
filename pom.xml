@@ -22,7 +22,7 @@
 
     <properties>
         <!-- other properties -->
-        <keycloak.version>26.2.0</keycloak.version>
+        <keycloak.version>26.2.4</keycloak.version>
     </properties>
 
     <dependencies>
