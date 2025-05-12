@@ -1,10 +1,9 @@
 package xx.scicat.keycloakplugin.permissions;
 
 import org.jboss.logging.Logger;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
+
+import static java.util.Objects.requireNonNull;
 
 public class AdminAdapter {
     private static final Logger LOG = Logger.getLogger(AdminAdapter.class);
@@ -39,16 +38,19 @@ public class AdminAdapter {
 
     public UserModel createAdminUser(RealmModel realm, String userName) {
         UserModel user = session.users().addUser(realm, userName);
-        // TODO fix the following:
-        LOG.warn("Please manually add role view-users to new user " + userName);
-        //        user.grantRole(requireNonNull(KeycloakModelUtils.getRoleFromString(realm,AdminRoles.VIEW_USERS)));
-        //        user.grantRole(requireNonNull(realm.getRole(AdminRoles.VIEW_USERS)));
+        ClientModel realmManagementClient = getRealmManagementClient(realm);
+        user.grantRole(requireNonNull(realmManagementClient.getRole(AdminRoles.VIEW_USERS)));
+        // user.grantRole(requireNonNull(realmManagementClient.getRole(AdminRoles.QUERY_USERS)));
+        // user.grantRole(requireNonNull(realmManagementClient.getRole(AdminRoles.QUERY_GROUPS)));
         user.setEnabled(true);
         return user;
     }
 
-
     public void removeGroup(RealmModel realm, GroupModel group) {
         session.groups().removeGroup(realm, group);
+    }
+
+    public static ClientModel getRealmManagementClient(RealmModel realm) {
+        return realm.getClientByClientId(Constants.REALM_MANAGEMENT_CLIENT_ID);
     }
 }
