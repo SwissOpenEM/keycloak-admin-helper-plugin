@@ -2,7 +2,7 @@
 Done 2025-05-12 with 
 
 ## Test setup:
-I created 100 facilities with 1000 sub groups each using simulated UI calls (see scripts)
+I created 100 facilities with 1000 subgroups each using simulated UI calls (see scripts)
 
 ## Results:
 - no exceptions or errors on server side

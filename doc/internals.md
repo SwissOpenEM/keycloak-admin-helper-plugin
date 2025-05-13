@@ -12,12 +12,12 @@ Target user: superuser (someone from PSI)
 
 Trigger: CREATE GROUP event of a **top-level**-group with the suffix `--initnewfacility`.
 
-As top-level groups can only be created by the super user, there are not more security considerations about this.
+As top-level groups can only be created by the superuser, there are not more security considerations about this.
 
 The workflow, in details:
 * Sanity check. Abort in case of an error:
   * must be a top-level group
-  * in front of the prefix, there must be a facility name of 1 character length minimum, It will be used in forther steps
+  * in front of the prefix, there must be a facility name of 1 character length minimum, It will be used in further steps
   * collision detection. as the group will be renamed to the facility name without prefix, it is not allowed that another group already exists with this name
 * Rename the group to facility name (without suffix)
 * Create admin user
@@ -31,11 +31,11 @@ The workflow, in details:
 ## Workflow "FacilityManagerHelper"
 Target users: facility managers
 
-Trigger: CREATE GROUP event of a **sub**-group.
+Trigger: CREATE GROUP event of a **sub**group.
 
 The workflow, in details:
 * Sanity check. Abort in case of an error:
-  * must be a sub group (must have a parent group)
+  * must be a subgroup (must have a parent group)
   * extract attribute `facilityName` of top-level group. Fail if attribute is not set
 * set group attribute `facility-name` to facility name
 * set permission and policy for group
