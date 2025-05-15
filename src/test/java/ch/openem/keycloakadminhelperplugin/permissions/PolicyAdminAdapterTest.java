@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.permissions;
+package ch.openem.keycloakadminhelperplugin.permissions;
 
 import org.keycloak.models.RealmModel;
 import org.keycloak.representations.idm.authorization.DecisionStrategy;

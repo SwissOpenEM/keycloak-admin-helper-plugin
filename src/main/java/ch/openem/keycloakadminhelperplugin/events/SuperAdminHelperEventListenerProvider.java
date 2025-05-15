@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package xx.scicat.keycloakplugin.events;
+package ch.openem.keycloakadminhelperplugin.events;
 
+import ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.OperationType;
@@ -24,17 +25,17 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import xx.scicat.keycloakplugin.workflow.NewGroupEventHandler;
 
 import static java.util.Objects.requireNonNull;
-import static xx.scicat.keycloakplugin.workflow.NewGroupEventHandler.FACILITY_NAME_ATTR;
 
 /**
- * Listens on create-group events of subgroups
+ * Listens on create-group events with name suffix "--initnewfacility"
  */
-public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEventProvider {
+public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventProvider {
 
-    protected FacilityManagerHelperEventListenerProvider(KeycloakSession session) {
+    public static final String GROUPNAME_INIT_SUFFIX = "--initnewfacility";
+
+    protected SuperAdminHelperEventListenerProvider(KeycloakSession session) {
         super(session);
     }
 
@@ -59,25 +60,22 @@ public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEve
         final String newGroupId = requireNonNull(getGroupIdFromEvent(event));
         final GroupModel group = requireNonNull(session.groups().getGroupById(realm, newGroupId));
 
-        LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
+        String groupName = group.getName();
+        if (group.getParent() == null && groupName.endsWith(GROUPNAME_INIT_SUFFIX)) {
+            LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
-        NewGroupEventHandler handler = new NewGroupEventHandler(session);
+            NewGroupEventHandler handler = new NewGroupEventHandler(session);
 
-        if (group.getParent() == null) {
-            LOG.warn("abort: is a top level group");
-            return;
+            String facilityName = groupName.substring(0, groupName.length() - GROUPNAME_INIT_SUFFIX.length());
+            while (facilityName.endsWith("-")) facilityName = facilityName.substring(0, facilityName.length() - 1);
+            if (facilityName.isBlank())
+                throw new IllegalArgumentException("Facility name in group name " + groupName + " is empty");
+
+            LOG.warnv("Initializing a new facility with name {0}", facilityName);
+
+            handler.processNewInitializerGroupEvent(realm, group, facilityName);
         }
-        final GroupModel topGroup = getTopGroup(group);
-        LOG.warn("  - top group is: " + topGroup + " " + topGroup.getName());
-        final String facilityName = getFacilityFromGroup(topGroup);
-        if (facilityName == null) {
-            LOG.warn("abort: no " + FACILITY_NAME_ATTR + " attribute set on top level group");
-            return;
-        }
-
-        handler.processNewGroupEvent(realm, group, facilityName, topGroup);
     }
-
 
     @Override
     public void close() {

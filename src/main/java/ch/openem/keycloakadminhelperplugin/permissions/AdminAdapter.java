@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.permissions;
+package ch.openem.keycloakadminhelperplugin.permissions;
 
 import org.jboss.logging.Logger;
 import org.keycloak.models.*;
