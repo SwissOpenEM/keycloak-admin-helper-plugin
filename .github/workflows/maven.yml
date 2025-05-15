@@ -28,7 +28,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Run the Maven verify phase
-      run: mvn --batch-mode --update-snapshots verify integration-test
+      run: mvn --batch-mode --update-snapshots verify
     #- name: Build with Maven
     #  run: mvn --batch-mode package
     - uses: actions/upload-artifact@v4
