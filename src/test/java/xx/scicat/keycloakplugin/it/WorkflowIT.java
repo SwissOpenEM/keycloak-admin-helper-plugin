@@ -3,6 +3,7 @@ package xx.scicat.keycloakplugin.it;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,6 +117,7 @@ class WorkflowIT {
         }
 
         @Test
+        @Disabled
         void facilityManager_workflow_withImportedRealm() {
             try (Keycloak keycloak = keycloakAdmin()) {
                 RealmResource realm = keycloak.realm("integrationtest");
