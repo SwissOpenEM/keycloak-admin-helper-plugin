@@ -16,5 +16,5 @@
 # limitations under the License.
 #
 
-xx.scicat.keycloakplugin.events.SuperAdminHelperEventListenerProviderFactory
-xx.scicat.keycloakplugin.events.FacilityManagerHelperEventListenerProviderFactory
+ch.openem.keycloakadminhelperplugin.events.SuperAdminHelperEventListenerProviderFactory
+ch.openem.keycloakadminhelperplugin.events.FacilityManagerHelperEventListenerProviderFactory

@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.events;
+package ch.openem.keycloakadminhelperplugin.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +11,7 @@ import org.keycloak.util.JsonSerialization;
 
 import java.io.IOException;
 
-import static xx.scicat.keycloakplugin.workflow.NewGroupEventHandler.FACILITY_NAME_ATTR;
+import static ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler.FACILITY_NAME_ATTR;
 
 public abstract class AbstractGroupEventProvider implements EventListenerProvider {
     final Logger LOG = Logger.getLogger(getClass());

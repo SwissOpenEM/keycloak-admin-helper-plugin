@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package xx.scicat.keycloakplugin.events;
+package ch.openem.keycloakadminhelperplugin.events;
 
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
@@ -24,7 +24,7 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import xx.scicat.keycloakplugin.workflow.NewGroupEventHandler;
+import ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler;
 
 import static java.util.Objects.requireNonNull;
 

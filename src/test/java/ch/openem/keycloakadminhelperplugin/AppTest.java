@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin;
+package ch.openem.keycloakadminhelperplugin;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package xx.scicat.keycloakplugin.events;
+package ch.openem.keycloakadminhelperplugin.events;
 
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProvider;
@@ -23,10 +23,10 @@ import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
-public class SuperAdminHelperEventListenerProviderFactory implements EventListenerProviderFactory {
+public class FacilityManagerHelperEventListenerProviderFactory implements EventListenerProviderFactory {
     @Override
     public EventListenerProvider create(KeycloakSession session) {
-        return new SuperAdminHelperEventListenerProvider(session);
+        return new FacilityManagerHelperEventListenerProvider(session);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SuperAdminHelperEventListenerProviderFactory implements EventListen
 
     @Override
     public String getId() {
-        return "scicat-superadmin-helper";
+        return "scicat-facilitymanager-helper";
     }
 
 }
