@@ -28,14 +28,22 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    - name: Set version
+      run: |
+        set -ex
+        keycloakVersion="$(. docker/.env ; echo "${KEYCLOAK_IMAGE##*:}")"
+        gitrev="$(git rev-parse --short HEAD)"
+        timestamp="$(date +%Y%m%d%H%M%S)"
+        mvn --batch-mode versions:set "-DnewVersion=1.0-$keycloakVersion-$timestamp-$gitrev"
+    - name: Run the Maven package phase
+      run: mvn --batch-mode --update-snapshots package
     - name: Run the Maven verify phase
-      run: mvn --batch-mode --update-snapshots verify
+      run: mvn --batch-mode verify
+    # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-java-packages-with-maven
     - name: Publish to GitHub Packages
       run: mvn --batch-mode deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #- name: Build with Maven
-    #  run: mvn --batch-mode package
     - uses: actions/upload-artifact@v4
       with:
         name: Build
