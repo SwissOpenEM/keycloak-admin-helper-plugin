@@ -1,0 +1,4 @@
+I would like to use this file as keycloak import file.
+It was normally exported using default keycloak features.
+
+Unfortunately, if I try to use this file in a testcontainer, the container never comes up

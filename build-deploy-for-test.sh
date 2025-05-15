@@ -3,7 +3,7 @@
 set -e -x
 
 # build
-mvn clean package
+mvn clean package -DskipTests
 
 # copy binary to docker folder
 rm -fv docker/plugins/*.jar
