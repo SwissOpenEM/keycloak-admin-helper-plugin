@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.it;
+package ch.openem.keycloakadminhelperplugin.it;
 
 import org.keycloak.admin.client.Keycloak;
 

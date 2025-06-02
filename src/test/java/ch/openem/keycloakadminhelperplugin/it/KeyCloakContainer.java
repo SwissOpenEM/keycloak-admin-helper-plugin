@@ -1,4 +1,4 @@
-package xx.scicat.keycloakplugin.it;
+package ch.openem.keycloakadminhelperplugin.it;
 
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.testcontainers.images.ImagePullPolicy;
@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.List;
 
 import static java.lang.module.ModuleDescriptor.Version;
-import static xx.scicat.keycloakplugin.it.KeyCloakContainer.Distribution.quarkus;
+import static ch.openem.keycloakadminhelperplugin.it.KeyCloakContainer.Distribution.quarkus;
 
 class KeyCloakContainer {
 
