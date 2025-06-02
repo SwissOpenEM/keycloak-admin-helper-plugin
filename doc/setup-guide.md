@@ -12,7 +12,7 @@ Use `mvn package` for compiling, or `mvn verify` to make sure that all tests are
 
 Checkout the following dockerfile (simplified copy of docker/Dockerfile)
 
-    FROM quay.io/keycloak/keycloak:26.2.4
+    FROM quay.io/keycloak/keycloak:26.2.5
     
     USER root
     COPY plugins/*.jar /opt/keycloak/providers/
