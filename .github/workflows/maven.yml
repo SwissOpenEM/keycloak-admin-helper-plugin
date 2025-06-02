@@ -80,6 +80,7 @@ jobs:
           name: Build
 
       - name: Get Version & copy artifact
+        id: version
         run: |
           set -ex
           # name like: keycloak-facilities-admin-plugin-1.0-26.2.5-eap-20250602115557-f9ec54b.jar
@@ -93,8 +94,7 @@ jobs:
           mkdir -p docker/plugins/
           cp -pv ./keycloak-facilities-admin-plugin-*.jar docker/plugins/
 
-          # hack
-          cp -v docker/.env .
+          cat .env >>"$GITHUB_OUTPUT"  # sets ${{ steps.version.outputs.KEYCLOAK_IMAGE }}
 
       # Uses the `docker/login-action` action to log in to the Container registry registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
@@ -122,6 +122,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            KEYCLOAK_IMAGE=${{ steps.version.outputs.KEYCLOAK_IMAGE }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see [Using artifact attestations to establish provenance for builds](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds).
       - name: Generate artifact attestation
