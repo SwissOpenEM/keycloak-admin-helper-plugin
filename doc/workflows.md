@@ -22,7 +22,7 @@ The workflow, in details:
 * Rename the group to facility name (without suffix)
 * Create admin user
   * name: `facilityName + "-admin"`
-  * attribute `facility-name` set to facility name
+  * attribute `facility-name` set to facility name (right now it seems that users don't have attributes and this attribute information gets lost)
   * with `(realm-management) view-users` role
   * user is enabled, but without credentials set, so login is not yet possible
 * set group attribute `facility-name` to facility name

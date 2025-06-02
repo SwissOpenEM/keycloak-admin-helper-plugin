@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         - KEYCLOAK_IMAGE=${KEYCLOAK_IMAGE}
+    command: start-dev
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
