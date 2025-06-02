@@ -77,12 +77,8 @@ jobs:
         with:
           name: Build
 
-      - name: debug
-        run: ls
-
       - name: Get Version & copy artifact
         run: |
-          unzip Build.zip
           # name like: keycloak-facilities-admin-plugin-1.0-26.2.5-eap-20250602115557-f9ec54b.jar
           ver="$(ls *.jar)"
           ver="${ver#keycloak-facilities-admin-plugin-}"
