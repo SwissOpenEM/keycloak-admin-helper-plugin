@@ -5,6 +5,7 @@ name: Create and publish a Docker image
 on:
   workflow_run:
     workflows: ['Java CI with Maven']                     # runs after CI workflow
+    branches: ['main']
     types:
       - completed
 
@@ -26,6 +27,8 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: Build
+        workflow: ${{ github.event.workflow_run.workflow_id }}
+        workflow_conclusion: success
 
     - name: debug
       run: ls
