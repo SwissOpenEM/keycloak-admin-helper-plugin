@@ -34,12 +34,14 @@ jobs:
         keycloakVersion="$(. docker/.env ; echo "${KEYCLOAK_IMAGE##*:}")"
         gitrev="$(git rev-parse --short HEAD)"
         timestamp="$(date +%Y%m%d%H%M%S)"
-        if [ "${BRANCH_REF}" = 'refs/heads/master' ]; then
+        if [ "${BRANCH_REF}" = 'refs/heads/main' ]; then
           eap=""
         else
           eap="-eap"
         fi
-        mvn --batch-mode versions:set "-DnewVersion=1.0-$keycloakVersion${eap}-$timestamp-$gitrev"
+        ver="1.0-$keycloakVersion${eap}-$timestamp-$gitrev"
+        echo "## The version is: $ver"
+        mvn --batch-mode versions:set "-DnewVersion=$ver"
       env:
         BRANCH_REF: ${{ github.ref }}
     - name: Run the Maven package phase
@@ -79,11 +81,13 @@ jobs:
 
       - name: Get Version & copy artifact
         run: |
+          set -ex
           # name like: keycloak-facilities-admin-plugin-1.0-26.2.5-eap-20250602115557-f9ec54b.jar
           ver="$(ls *.jar)"
           ver="${ver#keycloak-facilities-admin-plugin-}"
           ver="${ver%.jar}"
-          get tag v"$ver"   # not pushed, but needed by docker/metadata-action
+          echo "## The version is: $ver"
+          git tag v"$ver"   # not pushed, but needed by docker/metadata-action
 
           rm -fv docker/plugins/*.jar
           mkdir -p docker/plugins/
