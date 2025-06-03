@@ -132,9 +132,9 @@ jobs:
             type=semver,pattern={{version}},value=${{ steps.version.outputs.VERSION }}
             type=semver,pattern={{major}},value=${{ steps.version.outputs.MAJOR }}
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.MAJOR }}.${{ steps.version.outputs.MINOR }}
-            type=semver,pattern=k{{keycloakmajor}},value=${{ steps.version.outputs.K1 }}
-            type=semver,pattern=k{{keycloakmajor}}.{{keycloakminor}},value=${{ steps.version.outputs.K12 }}
-            type=semver,pattern=k{{keycloakmajor}}.{{keycloakminor}}.{{keycloakpatch}},value=${{ steps.version.outputs.K123 }}
+            type=semver,pattern=k${{ steps.version.outputs.K1 }}
+            type=semver,pattern=k${{ steps.version.outputs.K12 }}
+            type=semver,pattern=k${{ steps.version.outputs.K123 }}
 
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
