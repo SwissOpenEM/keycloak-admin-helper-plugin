@@ -106,17 +106,14 @@ jobs:
           MAJOR=$v1
           MINOR=$v2
           PATCH=$v3
-          K_MAJOR=$k1
-          K_MINOR=$k2
-          K_PATCH=$k3
-          VK1=$v1.$v2.$v3-$k1
-          VK2=$v1.$v2.$v3-$k1.$k2
-          VK3=$v1.$v2.$v3-$k1.$k2.$k3
+          K1=$k1
+          K12=$k1.$k2
+          K123=$k1.$k2.$k3
           .e
 
       # Uses the `docker/login-action` action to log in to the Container registry registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -125,7 +122,7 @@ jobs:
       ## This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -135,16 +132,16 @@ jobs:
             type=semver,pattern={{version}},value=${{ steps.version.outputs.VERSION }}
             type=semver,pattern={{major}},value=${{ steps.version.outputs.MAJOR }}
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.MAJOR }}.${{ steps.version.outputs.MINOR }}
-            type=semver,pattern=${{ steps.version.outputs.VK1 }}
-            type=semver,pattern=${{ steps.version.outputs.VK2 }}
-            type=semver,pattern=${{ steps.version.outputs.VK3 }}
+            type=semver,pattern=k{{keycloakmajor}},value=${{ steps.version.outputs.K1 }}
+            type=semver,pattern=k{{keycloakmajor}}.{{keycloakminor}},value=${{ steps.version.outputs.K12 }}
+            type=semver,pattern=k{{keycloakmajor}}.{{keycloakminor}}.{{keycloakpatch}},value=${{ steps.version.outputs.K123 }}
 
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@v6
         with:
           context: docker/
           push: true
