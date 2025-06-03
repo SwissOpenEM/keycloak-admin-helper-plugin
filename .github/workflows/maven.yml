@@ -130,7 +130,9 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}},value=${{ steps.version.outputs.VERSION }}
+            type=raw,value=${{ steps.version.outputs.MAJOR }}
             type=raw,value=${{ steps.version.outputs.MAJOR }}.${{ steps.version.outputs.MINOR }}
+            type=raw,value=${{ steps.version.outputs.MAJOR }}.${{ steps.version.outputs.MINOR }}.${{ steps.version.outputs.PATCH }}
             type=raw,value=k${{ steps.version.outputs.K1 }}
             type=raw,value=k${{ steps.version.outputs.K12 }}
             type=raw,value=k${{ steps.version.outputs.K123 }}
