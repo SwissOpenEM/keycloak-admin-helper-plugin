@@ -44,7 +44,7 @@ jobs:
         else
           eap="-eap"
         fi
-        mainVersion="1.0.$RUN_ID"
+        mainVersion="1.0.$RUN_NUMBER"
         ver="$mainVersion-$keycloakVersion${eap}-$gitrev"
         echo "version=$ver" >>"$GITHUB_OUTPUT"
         echo "mainVersion=$mainVersion" >>"$GITHUB_OUTPUT"
@@ -53,7 +53,7 @@ jobs:
         mvn --batch-mode versions:set "-DnewVersion=$ver"
       env:
         BRANCH_REF: ${{ github.ref }}
-        RUN_ID: ${{ github.run_id }}
+        RUN_NUMBER: ${{ github.run_number }}
     - name: Run the Maven package phase
       run: mvn --batch-mode --update-snapshots package
     - name: Run the Maven verify phase
