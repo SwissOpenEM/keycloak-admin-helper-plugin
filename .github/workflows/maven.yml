@@ -58,6 +58,12 @@ jobs:
       run: mvn --batch-mode --update-snapshots package
     - name: Run the Maven verify phase
       run: mvn --batch-mode verify
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: (!cancelled())
+      with:
+        files: |
+          target/surefire-reports/**/*.xml
     # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-java-packages-with-maven
     - name: Publish to mvn artifact to GitHub Packages
       run: mvn --batch-mode deploy
