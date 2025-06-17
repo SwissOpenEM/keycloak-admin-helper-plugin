@@ -60,17 +60,17 @@ jobs:
       run: mvn --batch-mode --update-snapshots package
     - name: Run the Maven verify phase
       run: mvn --batch-mode verify
-    - name: Publish Test Results
+    - name: Publish Test Results (brief)
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: (!cancelled())
       with:
         files: |
           target/surefire-reports/**/*.xml
-    - name: Publish Test Results
+    - name: Publish Test Results (detailed but only visible on action)
       uses: dorny/test-reporter@v2
       if: (!cancelled())       # run this step even if previous step failed
       with:
-        name: MVN Tests           # Name of the check run which will be created
+        name: Java Tests           # Name of the check run which will be created
         path: |                   # Path to test results
           target/surefire-reports/**/*.xml
         reporter: java-junit      # Format of test results
