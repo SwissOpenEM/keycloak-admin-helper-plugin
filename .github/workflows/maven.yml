@@ -126,7 +126,7 @@ jobs:
           .e
 
           echo "## The version is: $version"
-          git tag v"$ver"   # not pushed, but needed by docker/metadata-action
+          git tag v"$version"   # not pushed, but needed by docker/metadata-action
 
           rm -fv docker/plugins/*.jar
           mkdir -p docker/plugins/
@@ -134,7 +134,7 @@ jobs:
 
           cat docker/.env >>"$GITHUB_OUTPUT"  # sets ${{ steps.version.outputs.KEYCLOAK_IMAGE }}
           cat >>"$GITHUB_OUTPUT" <<.e
-          VERSION=$ver
+          VERSION=$version
           MAJOR=$v1
           MINOR=$v2
           PATCH=$v3
