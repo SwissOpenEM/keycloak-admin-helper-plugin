@@ -59,19 +59,19 @@ public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEve
         final String newGroupId = requireNonNull(getGroupIdFromEvent(event));
         final GroupModel group = requireNonNull(session.groups().getGroupById(realm, newGroupId));
 
-        LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
+        LOG.debugv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
         NewGroupEventHandler handler = new NewGroupEventHandler(session);
 
         if (group.getParent() == null) {
-            LOG.warn("abort: is a top level group");
+            LOG.info("abort: is a top level group");
             return;
         }
         final GroupModel topGroup = getTopGroup(group);
-        LOG.warn("  - top group is: " + topGroup + " " + topGroup.getName());
+        LOG.debug("  - top group is: " + topGroup + " " + topGroup.getName());
         final String facilityName = getFacilityFromGroup(topGroup);
         if (facilityName == null) {
-            LOG.warn("abort: no " + FACILITY_NAME_ATTR + " attribute set on top level group");
+            LOG.info("abort: no " + FACILITY_NAME_ATTR + " attribute set on top level group");
             return;
         }
 

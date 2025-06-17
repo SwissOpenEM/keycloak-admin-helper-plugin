@@ -25,12 +25,12 @@ public class NewGroupEventHandler {
     }
 
     private static void setAttributeForGroup(GroupModel group, String facilityName) {
-        LOG.warnv("  * set {0} attribute to {1}", FACILITY_NAME_ATTR, facilityName);
+        LOG.infov("  * set {0} attribute to {1}", FACILITY_NAME_ATTR, facilityName);
         group.setSingleAttribute(FACILITY_NAME_ATTR, facilityName);
     }
 
     public void processNewInitializerGroupEvent(RealmModel realm, GroupModel group, String facilityName) {
-        LOG.warnv("New init facility group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
+        LOG.infov("New init facility group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
 
         AdminAdapter admin = new AdminAdapter(realm, session);
         PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
@@ -38,7 +38,7 @@ public class NewGroupEventHandler {
         // collision detection is indirectly implemented in kaycloak itself
         GroupModel existingGroup = session.groups().getGroupByName(realm, null, facilityName);
         if (existingGroup != null) {
-            LOG.warnv("Group with name " + facilityName + " already exists. Doing nothing.");
+            LOG.infov("Group with name " + facilityName + " already exists. Doing nothing.");
             return;
         }
         group.setName(facilityName);
@@ -51,7 +51,7 @@ public class NewGroupEventHandler {
     }
 
     public void processNewGroupEvent(RealmModel realm, GroupModel group, String facilityName, GroupModel topGroup) {
-        LOG.warnv("New group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
+        LOG.infov("New group in realm {0}: {1} {2} isSubGroup={3}", realm.getName(), group, group.getName(), group.getParent() != null);
 
         // early init => early abort if objects cannot be found
         PolicyAdminAdapter policyAdmin = PolicyAdminAdapter.create(session, realm);
@@ -84,8 +84,8 @@ public class NewGroupEventHandler {
         final String name = facilityName + " admin for all " + facilityName + " groups";
         final Set<String> scopes = Set.of("view-members", "manage-membership", "manage-members", "view", "manage");
 
-        if (policyAdmin.addGroupToExistingPermission(name, group, scopes)) {
-            LOG.warn("added to already-existing permission");
+        if (policyAdmin.addGroupToExistingPermission(name, group)) {
+            LOG.info("added to already-existing permission");
             return;
         }
 

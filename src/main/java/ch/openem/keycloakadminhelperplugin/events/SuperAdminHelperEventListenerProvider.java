@@ -62,7 +62,7 @@ public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventPro
 
         String groupName = group.getName();
         if (group.getParent() == null && groupName.endsWith(GROUPNAME_INIT_SUFFIX)) {
-            LOG.warnv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
+            LOG.debugv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
             NewGroupEventHandler handler = new NewGroupEventHandler(session);
 
@@ -71,7 +71,7 @@ public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventPro
             if (facilityName.isBlank())
                 throw new IllegalArgumentException("Facility name in group name " + groupName + " is empty");
 
-            LOG.warnv("Initializing a new facility with name {0}", facilityName);
+            LOG.infov("Initializing a new facility with name {0}", facilityName);
 
             handler.processNewInitializerGroupEvent(realm, group, facilityName);
         }

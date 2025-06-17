@@ -38,11 +38,11 @@ public abstract class AbstractGroupEventProvider implements EventListenerProvide
     }
 
     void dumpEvent(AdminEvent event) {
-        LOG.warn("ADMIN EVENT on realm " + event.getRealmName() + ": " + toString(event));
-        LOG.warn("ADMIN EVENT: " + event.getRepresentation());
-        LOG.warn("ADMIN EVENT: " + event.getResourceType());
+        LOG.debug("ADMIN EVENT on realm " + event.getRealmName() + ": " + toString(event));
+        LOG.debug("ADMIN EVENT: " + event.getRepresentation());
+        LOG.debug("ADMIN EVENT: " + event.getResourceType());
         if (event.getDetails() != null)
-            event.getDetails().forEach((key, value) -> LOG.warn("ADMIN EVENT:   " + key + " " + value));
+            event.getDetails().forEach((key, value) -> LOG.debug("ADMIN EVENT:   " + key + " " + value));
     }
 
     String toString(AdminEvent adminEvent) {
