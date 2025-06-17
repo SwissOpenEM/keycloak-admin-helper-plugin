@@ -7,8 +7,8 @@ import org.testcontainers.images.PullPolicy;
 import java.io.File;
 import java.util.List;
 
-import static java.lang.module.ModuleDescriptor.Version;
 import static ch.openem.keycloakadminhelperplugin.it.KeyCloakContainer.Distribution.quarkus;
+import static java.lang.module.ModuleDescriptor.Version;
 
 class KeyCloakContainer {
 

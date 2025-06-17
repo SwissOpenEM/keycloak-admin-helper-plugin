@@ -1,5 +1,7 @@
 package ch.openem.keycloakadminhelperplugin.workflow;
 
+import ch.openem.keycloakadminhelperplugin.permissions.AdminAdapter;
+import ch.openem.keycloakadminhelperplugin.permissions.PolicyAdminAdapter;
 import org.jboss.logging.Logger;
 import org.keycloak.authorization.model.Policy;
 import org.keycloak.models.GroupModel;
@@ -10,8 +12,6 @@ import org.keycloak.representations.idm.authorization.DecisionStrategy;
 import org.keycloak.representations.idm.authorization.Logic;
 import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
-import ch.openem.keycloakadminhelperplugin.permissions.AdminAdapter;
-import ch.openem.keycloakadminhelperplugin.permissions.PolicyAdminAdapter;
 
 import java.util.Set;
 

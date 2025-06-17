@@ -22,11 +22,11 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import static ch.openem.keycloakadminhelperplugin.it.TestConstants.KEYCLOAK_HTTP_PORT;
+import static ch.openem.keycloakadminhelperplugin.it.TestConstants.REALM_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
-import static ch.openem.keycloakadminhelperplugin.it.TestConstants.KEYCLOAK_HTTP_PORT;
-import static ch.openem.keycloakadminhelperplugin.it.TestConstants.REALM_TEST;
 
 @Testcontainers
 class WorkflowIT {

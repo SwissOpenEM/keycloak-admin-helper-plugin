@@ -17,6 +17,7 @@
 
 package ch.openem.keycloakadminhelperplugin.events;
 
+import ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.OperationType;
@@ -24,10 +25,9 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler;
 
-import static java.util.Objects.requireNonNull;
 import static ch.openem.keycloakadminhelperplugin.workflow.NewGroupEventHandler.FACILITY_NAME_ATTR;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Listens on create-group events of subgroups
