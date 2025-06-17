@@ -17,7 +17,6 @@ import org.keycloak.representations.idm.authorization.PolicyRepresentation;
 import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -134,7 +133,7 @@ public class PolicyAdminAdapter {
     /**
      * source: from a question, not an answer in https://github.com/keycloak/keycloak/discussions/26869
      */
-    public boolean addGroupToExistingPermission(String permissionName, GroupModel group, Set<String> scopes) {
+    public boolean addGroupToExistingPermission(String permissionName, GroupModel groupToAdd) {
         Policy permissionToBeEdited = policyStore.findByName(resourceServer, permissionName);
         if (permissionToBeEdited == null) return false;
 
@@ -144,9 +143,9 @@ public class PolicyAdminAdapter {
         only non-null fields in representation will overwrite the existing permission
          */
         representation.setResources(permissionToBeEdited.getResources().stream().map(Resource::getId).collect(Collectors.toSet()));
-        LOG.warn("num res before: " + representation.getResources().size());
-        representation.addResource(group.getId());
-        LOG.warn("num res after: " + representation.getResources().size());
+        LOG.trace("num res before: " + representation.getResources().size());
+        representation.addResource(groupToAdd.getId());
+        LOG.trace("num res after: " + representation.getResources().size());
         // representation.setId(permissionToBeEdited.getId());
         RepresentationToModel.toModel(representation, authorization, permissionToBeEdited);
 
