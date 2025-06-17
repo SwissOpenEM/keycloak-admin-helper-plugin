@@ -56,6 +56,16 @@ jobs:
       env:
         BRANCH_REF: ${{ github.ref }}
         RUN_NUMBER: ${{ github.run_number }}
+    - name: Check for update of KeyCloak
+      run: |
+        newestKcVersion="$(curl  https://api.github.com/repos/keycloak/keycloak/releases/latest | jq -r .name)"
+        [ -n "$newestKcVersion" ]
+        if [ "$KC_IMAGEVERSION" != "$newestKcVersion" ]; then
+          echo "::warning title=KeyCloak Version::The newest version of keycloak on github is ($newestKcVersion) while the locally configured version is $KC_IMAGEVERSION"
+        fi
+      env:
+        KC_IMAGEVERSION: ${{ steps.version.outputs.keycloakVersion }}
+
     - name: Run the Maven package phase
       run: mvn --batch-mode --update-snapshots package
     - name: Run the Maven verify phase
