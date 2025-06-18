@@ -38,6 +38,8 @@ public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEve
         super(session);
     }
 
+    NewGroupEventHandler handler;
+
     @Override
     public void onEvent(Event event) {
         // normal events not of interest
@@ -61,7 +63,8 @@ public class FacilityManagerHelperEventListenerProvider extends AbstractGroupEve
 
         LOG.debugv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
-        NewGroupEventHandler handler = new NewGroupEventHandler(session);
+        if (handler == null)
+            handler = new NewGroupEventHandler(session);
 
         if (group.getParent() == null) {
             LOG.info("abort: is a top level group");

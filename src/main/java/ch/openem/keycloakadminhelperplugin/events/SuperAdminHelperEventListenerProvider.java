@@ -39,6 +39,8 @@ public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventPro
         super(session);
     }
 
+    NewGroupEventHandler handler;
+
     @Override
     public void onEvent(Event event) {
         // normal events not of interest
@@ -64,7 +66,8 @@ public class SuperAdminHelperEventListenerProvider extends AbstractGroupEventPro
         if (group.getParent() == null && groupName.endsWith(GROUPNAME_INIT_SUFFIX)) {
             LOG.debugv("Found group: {0} {1}  isSubGroup={2}", group.toString(), group.getName(), group.getParent() != null);
 
-            NewGroupEventHandler handler = new NewGroupEventHandler(session);
+            if (handler == null)
+                handler = new NewGroupEventHandler(session);
 
             String facilityName = groupName.substring(0, groupName.length() - GROUPNAME_INIT_SUFFIX.length());
             while (facilityName.endsWith("-")) facilityName = facilityName.substring(0, facilityName.length() - 1);
