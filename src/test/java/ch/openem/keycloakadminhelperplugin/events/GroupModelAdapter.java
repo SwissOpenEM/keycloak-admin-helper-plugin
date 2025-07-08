@@ -33,6 +33,16 @@ public class GroupModelAdapter implements GroupModel {
     }
 
     @Override
+    public String getDescription() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void setDescription(String s) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void setSingleAttribute(String key, String value) {
         attribs.put(key, List.of(value));
     }

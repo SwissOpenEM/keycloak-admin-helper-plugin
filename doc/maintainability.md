@@ -9,7 +9,7 @@ Some experiences:
 an easy and straight-forward task.
 * The update from 26.2.0 to 26.2.4 didn't need any change in the plugin.
 * The update from 26.2.4 to 26.2.5 didn't need any change in the plugin.
-* The update from 26.2.5 to 26.3.0 didn't need any change in the plugin.
+* The update from 26.2.5 to 26.3.0 needed a change in GroupModelAdapter
 
 Currently, the version of keycloak is stored on two locations in the source. Make sure you don't mix multiple versions at the same time:
 * `pom.xml` (java dependencies)
