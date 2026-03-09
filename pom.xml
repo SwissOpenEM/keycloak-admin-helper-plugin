@@ -70,7 +70,7 @@
 
     <properties>
         <!-- other properties -->
-        <keycloak.version>26.2.5</keycloak.version>
+        <keycloak.version>26.3.0</keycloak.version>
     </properties>
 
     <dependencies>
