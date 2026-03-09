@@ -12,14 +12,14 @@ Use `mvn package` for compiling, or `mvn verify` to make sure that all tests are
 
 Checkout the following dockerfile (simplified copy of docker/Dockerfile)
 
-    FROM quay.io/keycloak/keycloak:26.3.0
-    
+    FROM quay.io/keycloak/keycloak:26.5.4
+
     USER root
     COPY plugins/*.jar /opt/keycloak/providers/
     USER 1000
     RUN /opt/keycloak/bin/kc.sh build
     RUN /opt/keycloak/bin/kc.sh show-config | grep keycloak-facilities-admin-plugin
-    
+
     ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev"]
 
 What has to be done:
@@ -58,7 +58,7 @@ What has to be done:
 7. Set credentials for the manager users:
    ![User -> xxx-admin -> Credentials -> Create group -> Set password](img/setup-6-credentials.png)
 
-## This is what it looks like now 
+## This is what it looks like now
 ![Permissions](img/review-permissions.png)
 ![Permissions -> Policies](img/review-policies.png)
 ![Users](img/review-users.png)
