@@ -5,6 +5,7 @@ import org.testcontainers.images.ImagePullPolicy;
 import org.testcontainers.images.PullPolicy;
 
 import java.io.File;
+import java.lang.module.ModuleDescriptor.Version;
 import java.util.List;
 
 import static ch.openem.keycloakadminhelperplugin.it.KeyCloakContainer.Distribution.quarkus;
