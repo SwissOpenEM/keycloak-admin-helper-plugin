@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ch.openem.keycloakadminhelperplugin.it.TestConstants.KEYCLOAK_HTTP_PORT;
+import static ch.openem.keycloakadminhelperplugin.it.TestConstants.KEYCLOAK_MANAGEMENT_PORT;
 import static ch.openem.keycloakadminhelperplugin.it.TestConstants.REALM_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +35,8 @@ class WorkflowIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowIT.class);
     @Container
     private static final KeycloakContainer KEYCLOAK_CONTAINER = KeyCloakContainer.createContainer()
-            .withExposedPorts(KEYCLOAK_HTTP_PORT)
+            .withEnabledMetrics()
+            .withExposedPorts(KEYCLOAK_HTTP_PORT, KEYCLOAK_MANAGEMENT_PORT)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER).withSeparateOutputStreams())
             .withRealmImportFile("/realm-integrationtest-old.json")
             // .withRealmImportFile("/realm-integrationtest.json")  - doesn't start but only contains +adminPermissionsEnabled+policy+permission

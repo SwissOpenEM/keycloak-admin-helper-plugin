@@ -5,6 +5,7 @@ import org.keycloak.admin.client.Keycloak;
 class TestConstants {
 
     static final int KEYCLOAK_HTTP_PORT = 8080;
+    static final int KEYCLOAK_MANAGEMENT_PORT = 9000;
 
     static final String KEYCLOAK_ADMIN_PASS = "admin";
     static final String KEYCLOAK_ADMIN_USER = "admin";
