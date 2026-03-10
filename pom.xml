@@ -4,6 +4,15 @@
     <groupId>ch.openem.keycloakadminhelperplugin</groupId>
     <artifactId>keycloak-facilities-admin-plugin</artifactId>
     <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>keycloak-facilities-admin-plugin</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <!-- other properties -->
+        <keycloak.version>26.5.4</keycloak.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -64,15 +73,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <version>1.0.0-rc2-SNAPSHOT</version>
-    <name>keycloak-facilities-admin-plugin</name>
-    <url>http://maven.apache.org</url>
-
-    <properties>
-        <!-- other properties -->
-        <keycloak.version>26.5.4</keycloak.version>
-    </properties>
 
     <dependencies>
         <!-- testing -->

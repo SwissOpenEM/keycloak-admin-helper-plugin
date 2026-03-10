@@ -13,6 +13,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [ published ]
 
 jobs:
   build:
@@ -46,7 +48,14 @@ jobs:
         else
           eap="-eap"
         fi
-        mainVersion="1.0.$RUN_NUMBER"
+
+        # Use release tag if available, otherwise parse from pom.xml
+        if [ -n "${RELEASE_TAG}" ] && [ "${RELEASE_TAG}" != "" ]; then
+          mainVersion="${RELEASE_TAG#v}"  # Remove 'v' prefix if present
+        else
+          mainVersion="$(grep -m1 -oP '(?<=<version>)[^<]+' pom.xml)"
+        fi
+
         ver="$mainVersion-$keycloakVersion${eap}-$gitrev"
         echo "version=$ver" >>"$GITHUB_OUTPUT"
         echo "mainVersion=$mainVersion" >>"$GITHUB_OUTPUT"
@@ -55,7 +64,7 @@ jobs:
         mvn --batch-mode versions:set "-DnewVersion=$ver"
       env:
         BRANCH_REF: ${{ github.ref }}
-        RUN_NUMBER: ${{ github.run_number }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
     - name: Check for update of KeyCloak
       run: |
         newestKcVersion="$(curl  https://api.github.com/repos/keycloak/keycloak/releases/latest | jq -r .name)"
@@ -87,7 +96,7 @@ jobs:
     # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-java-packages-with-maven
     - name: Publish to mvn artifact to GitHub Packages
       run: mvn --batch-mode deploy
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'release'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4
@@ -98,7 +107,7 @@ jobs:
   docker:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'release'
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
