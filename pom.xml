@@ -10,7 +10,7 @@
 
     <properties>
         <!-- other properties -->
-        <keycloak.version>26.5.4</keycloak.version>
+        <keycloak.version>26.5.7</keycloak.version>
     </properties>
 
     <build>
